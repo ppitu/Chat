@@ -57,11 +57,11 @@ int main(int argc, char **argv)
 {
 	char		nickname[31];
 
-	if(argc < 3)
+	/*if(argc < 3)
 	{
 		printf("Nie podano portu lub\\i adresu IP\n");
 		exit(EXIT_FAILURE);
-	}
+	}*/
 
 	printf("Enter your nickname: ");
 	scanf("%s", nickname);
