@@ -2,10 +2,11 @@
 
 int 			socket_desc = 0;
 volatile int 		flag = 0;
+char 			nickname[NAMELENGTH];
 
 void recv_msg()
 {
-	char	recvLine[1024];
+	char	recvLine[MAXLINE];
 	
 	while(1)
 	{
@@ -18,6 +19,7 @@ void recv_msg()
 		{
 			recvLine[recv] = '\0';
 			printf("%s", recvLine);
+
 		} else if (recv == 0)
 		{
 			flag = 1;
@@ -32,11 +34,12 @@ void send_msg()
 	char 	sendLine[1024];
 	int 	end = 0;
 
+	fflush(stdin);
+
 	while(end == 0)
 	{
-		while(fgets(sendLine, 1024, stdin) != NULL)
+		while(fgets(sendLine, MAXLINE, stdin) != NULL)
 		{
-			
 			if(strcmp(sendLine, "exit\n") == 0)
 			{
 				flag = 1;
@@ -55,19 +58,18 @@ void send_msg()
 
 int main(int argc, char **argv)
 {
-	char		nickname[31];
 
-	/*if(argc < 3)
+	if(argc < 3)
 	{
 		printf("Nie podano portu lub\\i adresu IP\n");
 		exit(EXIT_FAILURE);
-	}*/
+	}
 
 	printf("Enter your nickname: ");
 	scanf("%s", nickname);
 
-	//socket_desc = tcp_connect(argv[1], argv[2]);
-	socket_desc = tcp_connect("77.55.213.189", "2020");
+	socket_desc = tcp_connect(argv[1], argv[2]);
+	//socket_desc = tcp_connect("77.55.213.189", "2020");
 
 	if((write(socket_desc, nickname, strlen(nickname))) == -1)
 	{

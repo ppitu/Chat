@@ -35,7 +35,7 @@ void doit(void * arg)
 
 	pthread_detach(pthread_self());
 
-	sprintf(recvLine, "%s join the chatroom.", returnNickName(&root, connfd));
+	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root, connfd));
 	printf("%s\n", recvLine);
 	sendToAll(recvLine, strlen(recvLine), connfd);
 
@@ -45,7 +45,6 @@ void doit(void * arg)
 		{
 			break;
 		}
-
 		recvLine[n] = '\0';
 
 		sprintf(sendLine, "%s: %s", returnNickName(&root, connfd), recvLine);
