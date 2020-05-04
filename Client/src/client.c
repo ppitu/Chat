@@ -47,7 +47,7 @@ void send_msg()
 				break;
 			}
 
-			Write(socket_desc, sendLine, strlen(sendLine));
+			checkedWrite(socket_desc, sendLine, strlen(sendLine));
 		}
 	}
 }	
@@ -67,13 +67,13 @@ int main(int argc, char **argv)
 	socket_desc = tcp_connect(argv[1], argv[2]);
 	//socket_desc = tcp_connect("77.55.213.189", "2020");
 
-	Write(socket_desc, nickname, strlen(nickname));
+	checkedWrite(socket_desc, nickname, strlen(nickname));
 
 	pthread_t send_msg_thread;
-	Pthread_create(&send_msg_thread, NULL, (void *)send_msg, NULL);
+	checkedPthread_create(&send_msg_thread, NULL, (void *)send_msg, NULL);
 
 	pthread_t recv_msg_thread;
-	Pthread_create(&recv_msg_thread, NULL, (void *)recv_msg, NULL);
+	checkedPthread_create(&recv_msg_thread, NULL, (void *)recv_msg, NULL);
 
 	
 	while(1)
@@ -86,5 +86,5 @@ int main(int argc, char **argv)
 	}
 
 
-	Close(socket_desc);
+	checkedClose(socket_desc);
 }

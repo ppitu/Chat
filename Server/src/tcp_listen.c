@@ -25,13 +25,13 @@ int tcp_listen(const char *host, const char *serv, socklen_t *addrlenp)
 		if(listen_desc < 0)
 			continue; /*blad probujemy nastepny*/
 
-		Setsockopt(listen_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+		checkedSetsockopt(listen_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
 
 		if(bind(listen_desc, res->ai_addr, res->ai_addrlen) == 0)
 			break;
 
-		Close(listen_desc);
+		checkedClose(listen_desc);
 	} while((res = res->ai_next) != NULL);
 
 	if(res == NULL)
@@ -40,7 +40,7 @@ int tcp_listen(const char *host, const char *serv, socklen_t *addrlenp)
 		exit(EXIT_FAILURE);
 	}
 
-	Listen(listen_desc, 20);
+	checkedListen(listen_desc, 20);
 
 	if(addrlenp)
 		*addrlenp = res->ai_addrlen;

@@ -26,7 +26,7 @@ int tcp_connect(const char *host, const char *serv)
 		if(connect(socket_desc, res->ai_addr, res->ai_addrlen) == 0)
 			break;
 
-		Close(socket_desc);
+		checkedClose(socket_desc);
 	} while(res = res->ai_next != NULL);
 
 	if(res == NULL)

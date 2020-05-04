@@ -17,7 +17,7 @@ void sendToAll(char tempbuffer[], int n, int desc)
 			temp = temp->next;
 			continue;
 		} 
-		Write(temp->data, tempbuffer, n);
+		checkedWrite(temp->data, tempbuffer, n);
 		temp = temp->next;
 	}
 }
@@ -33,7 +33,7 @@ void *doit(void * arg)
 
 	free(arg);
 
-	Pthread_detach(pthread_self());
+	checkedPthread_detach(pthread_self());
 
 	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root, connfd));
 	printf("%s\n", recvLine);
@@ -57,7 +57,7 @@ void *doit(void * arg)
 	printf("close socket: %d\n", connfd);
 	deleteNode(&root, connfd);
 
-	Close(connfd);
+	checkedClose(connfd);
 	return(NULL);
 }
 
@@ -76,10 +76,7 @@ void exitServer(void)
 		ClientList *temphelp;
 		while(temp != NULL)
 		{
-			if(close(temp->data) == -1)
-			{
-				printf("exitServer close error: %s\n", strerror(errno));
-			}
+			checkedClose(temp->data);
 			printf("Close socket_desc: %d\n", temp->data);	
 			temphelp = temp;
 			temp = temp->next;
@@ -87,7 +84,7 @@ void exitServer(void)
 		}	
 
 		printf("Close socket_desc: %d\n", root->data);
-		Close(root->data);
+		checkedClose(root->data);
 		free(root);
 
 		printf("Bye\n");
@@ -122,24 +119,24 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	cliaddr = Malloc(addrlen);
+	cliaddr = checkedMalloc(addrlen);
 
 	root = newNode(socket_desc, "127.0.0.1");
 	now = root;
 
 
-	exitid = Calloc(1, sizeof(pthread_t));
-	Pthread_create(&exitid[0], NULL, &exitServer, NULL);
+	exitid = checkedCalloc(1, sizeof(pthread_t));
+	checkedPthread_create(&exitid[0], NULL, &exitServer, NULL);
 
 	while(1)
 	{
 		len = addrlen;
-		connect_desc = Malloc(sizeof(int));
-		*connect_desc = Accept(socket_desc, (struct sockaddr *)cliaddr, &len);
+		connect_desc = checkedMalloc(sizeof(int));
+		*connect_desc = checkedAccept(socket_desc, (struct sockaddr *)cliaddr, &len);
 
-		Getpeername(*connect_desc, (struct sockaddr*)cliaddr, &len);
+		checkedGetpeername(*connect_desc, (struct sockaddr*)cliaddr, &len);
 
-		recv = Read(*connect_desc, nickname, sizeof(nickname));
+		recv = checkedRead(*connect_desc, nickname, sizeof(nickname));
 
 
 		nickname[recv] = '\0';
@@ -153,6 +150,6 @@ int main(int argc, char **argv)
 
 		setNickName(&root, *connect_desc, nickname);
 
-		Pthread_create(&thid, NULL, &doit, connect_desc);
+		checkedPthread_create(&thid, NULL, &doit, connect_desc);
 	}
 }

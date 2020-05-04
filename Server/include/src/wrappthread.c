@@ -1,6 +1,6 @@
 #include "lib.h"
 
-void Pthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*func)(void*), void *arg)
+void checkedPthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*func)(void*), void *arg)
 {
     int n;
 
@@ -11,7 +11,7 @@ void Pthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*func)(vo
     exit(EXIT_FAILURE);
 }
 
-int Pthread_detach(pthread_t thread)
+int checkedPthread_detach(pthread_t thread)
 {
     int n;
 

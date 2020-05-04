@@ -1,6 +1,6 @@
 #include "lib.h"
 
-int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr)
+int checkedAccept(int fd, struct sockaddr *sa, socklen_t *salenptr)
 {
     int n;
 
@@ -13,7 +13,7 @@ int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr)
     return(n);
 }
 
-int Getpeername(int fd, struct sockaddr * addr, socklen_t *addrlen)
+int checkedGetpeername(int fd, struct sockaddr * addr, socklen_t *addrlen)
 {
     int n;
 
@@ -26,7 +26,7 @@ int Getpeername(int fd, struct sockaddr * addr, socklen_t *addrlen)
     return(n);
 }
 
-int Setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen)
+int checkedSetsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen)
 {
     int n;
 
@@ -39,7 +39,7 @@ int Setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t
     return(n);
 }
 
-int Listen(int sockfd, int backlog)
+int checkedListen(int sockfd, int backlog)
 {
     int n;
 

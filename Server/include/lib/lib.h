@@ -39,18 +39,18 @@ ssize_t Readline(int , void *, size_t);
 
 /********WRAPPING FUNCTIONS***************/
 
-void *Malloc(size_t);
-void *Calloc(size_t, size_t);
-ssize_t Read(int, void *, size_t);
-ssize_t Write(int, const void *, size_t);
-int Close(int);
+void *checkedMalloc(size_t);
+void *checkedCalloc(size_t, size_t);
+ssize_t checkedRead(int, void *, size_t);
+ssize_t checkedWrite(int, const void *, size_t);
+int checkedClose(int);
 
-void Pthread_create(pthread_t *, const pthread_attr_t *, void *(*)(void *), void*);
-int Pthread_detach(pthread_t);
+void checkedPthread_create(pthread_t *, const pthread_attr_t *, void *(*)(void *), void*);
+int checkedPthread_detach(pthread_t);
 
-int Accept(int, struct sockaddr *, socklen_t *);
-int Getpeername(int, struct sockaddr *, socklen_t *);
-int Setsockopt(int, int, int, const void *, socklen_t);
-int Listen(int, int);
+int checkedAccept(int, struct sockaddr *, socklen_t *);
+int checkedGetpeername(int, struct sockaddr *, socklen_t *);
+int checkedSetsockopt(int, int, int, const void *, socklen_t);
+int checkedListen(int, int);
 
 #endif //LIB_H_

@@ -1,6 +1,6 @@
 #include "lib.h"
 
-void *Malloc(size_t size)
+void *checkedMalloc(size_t size)
 {
     void *ptr;
 
@@ -13,7 +13,7 @@ void *Malloc(size_t size)
     }
 }
 
-ssize_t Read(int fd, void *buf, size_t count)
+ssize_t checkedRead(int fd, void *buf, size_t count)
 {
     ssize_t n;
 
@@ -26,7 +26,7 @@ ssize_t Read(int fd, void *buf, size_t count)
     return(n);
 }
 
-void *Calloc(size_t nmemb, size_t size)
+void *checkedCalloc(size_t nmemb, size_t size)
 {
     void *ptr;
 
@@ -39,7 +39,7 @@ void *Calloc(size_t nmemb, size_t size)
     return(ptr);
 }
 
-ssize_t Write(int fd, const void *buf, size_t count)
+ssize_t checkedWrite(int fd, const void *buf, size_t count)
 {
     ssize_t n;
 
@@ -53,7 +53,7 @@ ssize_t Write(int fd, const void *buf, size_t count)
 
 }
 
-int Close(int fd)
+int checkedClose(int fd)
 {
     int n;
 
