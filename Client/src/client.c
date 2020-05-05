@@ -4,9 +4,11 @@ int 			socket_desc = 0;
 volatile int 		flag = 0;
 char 			nickname[NAMELENGTH];
 
+
 void recv_msg()
 {
 	char	recvLine[MAXLINE];
+	int recv;
 	
 	while(1)
 	{
@@ -14,7 +16,7 @@ void recv_msg()
 		{
 			break;
 		}
-		int recv = read(socket_desc, recvLine, sizeof(recvLine));
+		recv = checkedRead(socket_desc, recvLine, sizeof(recvLine));
 		if(recv > 0 )
 		{
 			recvLine[recv] = '\0';
@@ -54,6 +56,7 @@ void send_msg()
 
 int main(int argc, char **argv)
 {
+	char 	server_name[128];
 
 	if(argc < 3)
 	{
@@ -68,6 +71,13 @@ int main(int argc, char **argv)
 	//socket_desc = tcp_connect("77.55.213.189", "2020");
 
 	checkedWrite(socket_desc, nickname, strlen(nickname));
+
+	checkedRead(socket_desc, server_name, sizeof(server_name));
+
+	printf("Enter server name: ");
+	scanf("%s", server_name);
+
+	checkedWrite(socket_desc, server_name, strlen(server_name));
 
 	pthread_t send_msg_thread;
 	checkedPthread_create(&send_msg_thread, NULL, (void *)send_msg, NULL);
@@ -85,6 +95,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
+	free(line);
 	checkedClose(socket_desc);
 }

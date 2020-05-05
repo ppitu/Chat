@@ -1,6 +1,6 @@
 #include "client_list.h"
 
-ClientList *newNode(int socket_desc, char *ip)
+ClientList *ClientListNewNode(int socket_desc, char *ip)
 {
 	ClientList *temp = (ClientList *)malloc(sizeof(ClientList));
 	temp->data = socket_desc;

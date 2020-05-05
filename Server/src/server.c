@@ -1,14 +1,15 @@
 #include "lib.h"
 #include "client_list.h"
+#include "avltree.h"
 
-ClientList *root = NULL;
+ClientList *root_client_list = NULL;
 ClientList *now = NULL;
 
-
+NodeAvlServer *root_avl_tree = NULL;
 
 void sendToAll(char tempbuffer[], int n, int desc)
 {
-	ClientList *temp = root->next;
+	ClientList *temp = root_client_list->next;
 
 	while(temp != NULL)
 	{
@@ -35,7 +36,15 @@ void *doit(void * arg)
 
 	checkedPthread_detach(pthread_self());
 
-	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root, connfd));
+	checkedWrite(connfd, "l", strlen("l"));
+
+	n = checkedRead(connfd, recvLine, MAXLINE);
+
+	recvLine[n] = '\0';
+
+	root_avl_tree = AvlTreeInsert(root_avl_tree, connfd, recvLine);
+
+	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
 	printf("%s\n", recvLine);
 	sendToAll(recvLine, strlen(recvLine), connfd);
 
@@ -47,7 +56,7 @@ void *doit(void * arg)
 		}
 		recvLine[n] = '\0';
 
-		sprintf(sendLine, "%s: %s", returnNickName(&root, connfd), recvLine);
+		sprintf(sendLine, "%s: %s", returnNickName(&root_client_list, connfd), recvLine);
 
 		printf("%s", sendLine);
 
@@ -55,7 +64,7 @@ void *doit(void * arg)
 	}
 
 	printf("close socket: %d\n", connfd);
-	deleteNode(&root, connfd);
+	deleteNode(&root_client_list, connfd);
 
 	checkedClose(connfd);
 	return(NULL);
@@ -69,10 +78,16 @@ void exitServer(void)
 	{
 		scanf("%s", str);
 
-		if(str, "exit")
+		if(strcmp(str, "user") == 0)
+		{
+			AvlTreePreOrder(root_avl_tree);
+			printf("\n");
+		}
+
+		if(strcmp(str, "exit") == 0)
 		{
 		
-		ClientList *temp = root->next;
+		ClientList *temp = root_client_list->next;
 		ClientList *temphelp;
 		while(temp != NULL)
 		{
@@ -83,9 +98,9 @@ void exitServer(void)
 			free(temphelp);
 		}	
 
-		printf("Close socket_desc: %d\n", root->data);
-		checkedClose(root->data);
-		free(root);
+		printf("Close socket_desc: %d\n", root_client_list->data);
+		checkedClose(root_client_list->data);
+		free(root_client_list);
 
 		printf("Bye\n");
 		exit(EXIT_SUCCESS);
@@ -121,12 +136,12 @@ int main(int argc, char **argv)
 
 	cliaddr = checkedMalloc(addrlen);
 
-	root = newNode(socket_desc, "127.0.0.1");
-	now = root;
+	root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
+	now = root_client_list;
 
 
 	exitid = checkedCalloc(1, sizeof(pthread_t));
-	checkedPthread_create(&exitid[0], NULL, &exitServer, NULL);
+	checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
 
 	while(1)
 	{
@@ -141,14 +156,14 @@ int main(int argc, char **argv)
 
 		nickname[recv] = '\0';
 
-		now = lastElement(&root);
+		now = lastElement(&root_client_list);
 		
-		ClientList *c = newNode(*connect_desc, inet_ntoa(cliaddr->sin_addr));
+		ClientList *c = ClientListNewNode(*connect_desc, inet_ntoa(cliaddr->sin_addr));
 		c->prev = now;
 		now->next = c;
 		now = c;
 
-		setNickName(&root, *connect_desc, nickname);
+		setNickName(&root_client_list, *connect_desc, nickname);
 
 		checkedPthread_create(&thid, NULL, &doit, connect_desc);
 	}

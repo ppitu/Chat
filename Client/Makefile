@@ -1,6 +1,6 @@
 CC=gcc
 INCLUDE = -I./include/lib
-SOURCE1=$(wildcard include/src/*.c)
+SOURCE1=$(wildcard include/wrapfunction/*.c)
 SOURCE=$(wildcard src/*.c)
 
 

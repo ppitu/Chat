@@ -11,7 +11,7 @@ typedef struct ClientNode {
 	char name[NAMELENGTH];
 } ClientList;
 
-ClientList *newNode(int, char *);
+ClientList *ClientListNewNode(int, char *);
 void deleteNode(struct ClientNode **, int);
 ClientList *lastElement(struct ClientNode **);
 char *returnNickName(struct ClientNode **, int);
