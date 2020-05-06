@@ -15,16 +15,19 @@ typedef struct NodeAvl
 
 } NodeAvlServer;
 
-NodeAvlServer *AvlTreeNewNode(int, char []);
+NodeAvlServer *AvlTreeNewNode(int, int, char []);
 NodeAvlServer *singleRightRotate(struct NodeAvl *);
 NodeAvlServer *singleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleRightRotate(struct NodeAvl *);
 int height(struct NodeAvl *);
 int getBalance(struct NodeAvl *);
-NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, char[]);
+NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, int, char[]);
 void AvlTreePreOrder(struct NodeAvl *);
 NodeAvlServer *AvlTreeDeleteNode(struct NodeAvl *, int);
 NodeAvlServer *AvlTreeMinValeNode(struct NodeAvl *);
+int AvlTreeSize(struct NodeAvl*);
+int *AvlTreeReturnIdArray(struct NodeAvl *);
+void AvlTreeAddToArray(struct NodeAvl *, int[], int*);
 
 #endif //AVLTREE_H_

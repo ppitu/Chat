@@ -27,7 +27,9 @@ void *doit(void * arg)
 {
 	ssize_t		n, err;
 	char		recvLine[MAXLINE], sendLine[MAXLINE];
-	int			connfd;
+	int			connfd, avl_tree_size_doit;
+	int			*arr;
+	char 		len[10];
 
 
 	connfd = *((int *)arg);
@@ -36,13 +38,16 @@ void *doit(void * arg)
 
 	checkedPthread_detach(pthread_self());
 
-	checkedWrite(connfd, "l", strlen("l"));
+	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
+	sprintf(len, "%d", avl_tree_size_doit);
+	checkedWrite(connfd, len, sizeof(len));
+	checkedWrite(connfd, AvlTreeReturnIdArray(root_avl_tree), sizeof(int) * avl_tree_size_doit);
 
 	n = checkedRead(connfd, recvLine, MAXLINE);
 
 	recvLine[n] = '\0';
 
-	root_avl_tree = AvlTreeInsert(root_avl_tree, connfd, recvLine);
+	root_avl_tree = AvlTreeInsert(root_avl_tree, 1, connfd, recvLine);
 
 	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
 	printf("%s\n", recvLine);

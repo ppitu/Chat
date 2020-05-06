@@ -57,6 +57,8 @@ void send_msg()
 int main(int argc, char **argv)
 {
 	char 	server_name[128];
+	int 	*arr;
+	int		len;
 
 	if(argc < 3)
 	{
@@ -73,6 +75,18 @@ int main(int argc, char **argv)
 	checkedWrite(socket_desc, nickname, strlen(nickname));
 
 	checkedRead(socket_desc, server_name, sizeof(server_name));
+	sscanf(server_name, "%d", &len);
+	printf("%d\n", len);
+
+	checkedRead(socket_desc, arr, sizeof(int) * len);
+
+	if(len == 0)
+		printf("none\n");
+	else
+	{
+		printf("jest\n");
+	}
+	
 
 	printf("Enter server name: ");
 	scanf("%s", server_name);
@@ -95,6 +109,5 @@ int main(int argc, char **argv)
 		}
 	}
 
-	free(line);
 	checkedClose(socket_desc);
 }

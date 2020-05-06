@@ -1,6 +1,6 @@
 #include "avltree.h"
 
-NodeAvlServer *AvlTreeNewNode(int key, char server_name[])
+NodeAvlServer *AvlTreeNewNode(int key, int desc, char server_name[])
 {
     //NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
     NodeAvlServer *node = (NodeAvlServer *)malloc(sizeof(struct NodeAvl));
@@ -9,6 +9,7 @@ NodeAvlServer *AvlTreeNewNode(int key, char server_name[])
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
+    node->client_desc = desc;
     snprintf(node->server_name, 128, server_name);
     return(node);
 }
@@ -57,18 +58,20 @@ int height(struct NodeAvl *y)
     return(y->height);
 }
 
-NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, char server_name[])
+NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int desc, char server_name[])
 {
     int balance;
 
     //1. Perform the normal BST insertion
     if(node == NULL)
-        return(AvlTreeNewNode(key, server_name));
+    {
+        return(AvlTreeNewNode(key, desc, server_name));
+    }
 
     if(key < node->id)
-        node->left = AvlTreeInsert(node->left, key, server_name);
+        node->left = AvlTreeInsert(node->left, key, desc, server_name);
     else if(key > node->id)
-        node->right = AvlTreeInsert(node->right, key, server_name);
+        node->right = AvlTreeInsert(node->right, key, desc, server_name);
     else //equal keys are not allowed
         return node;
 
@@ -142,7 +145,6 @@ NodeAvlServer *AvlTreeDeleteNode(struct NodeAvl *node, int key)
             }
             else //one child case
                 *node = *temp;
-
             free(temp);
         } else
         {
@@ -172,4 +174,37 @@ NodeAvlServer *AvlTreeMinValeNode(struct NodeAvl * node)
         current = current->left;
 
     return current;
+}
+
+int *AvlTreeReturnIdArray(struct NodeAvl *node)
+{
+    int *arr;
+    int i = 0;
+
+    arr= calloc(AvlTreeSize(node), sizeof(int));
+
+    AvlTreeAddToArray(node, arr, &i);
+}
+
+int AvlTreeSize(struct NodeAvl * node)
+{
+    if(node == NULL)
+        return(0);
+    else
+    {
+        return(AvlTreeSize(node->left) + 1 + AvlTreeSize(node->right));
+    }
+    
+}
+
+void AvlTreeAddToArray(struct NodeAvl *node, int arr[], int *i)
+{
+    if(node == NULL)
+        return;
+
+    *(arr + *i) = node->id;
+    ++*i;
+    AvlTreeAddToArray(node->left, arr, i);
+    AvlTreeAddToArray(node->right, arr, i);
+
 }
