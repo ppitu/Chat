@@ -29,5 +29,6 @@ NodeAvlServer *AvlTreeMinValeNode(struct NodeAvl *);
 int AvlTreeSize(struct NodeAvl*);
 int *AvlTreeReturnIdArray(struct NodeAvl *);
 void AvlTreeAddToArray(struct NodeAvl *, int[], int*);
+bool AvlTreeContainId(struct NodeAvl *, int);
 
 #endif //AVLTREE_H_

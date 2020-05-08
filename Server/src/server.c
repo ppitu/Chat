@@ -30,6 +30,7 @@ void *doit(void * arg)
 	int			connfd, avl_tree_size_doit;
 	int			*arr;
 	char 		len[10];
+	int 		x;
 
 
 	connfd = *((int *)arg);
@@ -38,16 +39,35 @@ void *doit(void * arg)
 
 	checkedPthread_detach(pthread_self());
 
+	arr = AvlTreeReturnIdArray(root_avl_tree);
 	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
+
+	if(avl_tree_size_doit > 0)
+		printf("%d\n", *(arr + 0));
+
+	//send len and avl-tree-id-list
 	sprintf(len, "%d", avl_tree_size_doit);
 	checkedWrite(connfd, len, sizeof(len));
-	checkedWrite(connfd, AvlTreeReturnIdArray(root_avl_tree), sizeof(int) * avl_tree_size_doit);
+	printf("Wyslalem len\n");
 
-	n = checkedRead(connfd, recvLine, MAXLINE);
+	checkedRead(connfd, recvLine, MAXLINE);
+	printf("%s\n", recvLine);
 
-	recvLine[n] = '\0';
+	checkedWrite(connfd, arr, sizeof(int) * avl_tree_size_doit);
+	//fwrite(arr, sizeof(int), sizeof(arr), connfd);
+	printf("Send avl id array\n");
+	//checkedWrite(connfd, "l", sizeof("l"));
+	
+	//n = checkedRead(connfd, recvLine, MAXLINE);
 
-	root_avl_tree = AvlTreeInsert(root_avl_tree, 1, connfd, recvLine);
+	//recvLine[n] = '\0';
+	checkedRead(connfd, &x, sizeof(x));
+
+	if(!AvlTreeContainId(root_avl_tree, x))
+	{
+		printf("Create new chatroom id: %d\n", x);
+		root_avl_tree = AvlTreeInsert(root_avl_tree, x, connfd, recvLine);
+	}
 
 	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
 	printf("%s\n", recvLine);
@@ -67,6 +87,8 @@ void *doit(void * arg)
 
 		sendToAll(sendLine, strlen(sendLine), connfd);
 	}
+
+	free(arr);
 
 	printf("close socket: %d\n", connfd);
 	deleteNode(&root_client_list, connfd);
@@ -156,6 +178,7 @@ int main(int argc, char **argv)
 
 		checkedGetpeername(*connect_desc, (struct sockaddr*)cliaddr, &len);
 
+		//recv nickname
 		recv = checkedRead(*connect_desc, nickname, sizeof(nickname));
 
 

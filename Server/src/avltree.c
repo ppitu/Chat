@@ -181,9 +181,11 @@ int *AvlTreeReturnIdArray(struct NodeAvl *node)
     int *arr;
     int i = 0;
 
-    arr= calloc(AvlTreeSize(node), sizeof(int));
+    arr= (int *)calloc(AvlTreeSize(node), sizeof(int));// * AvlTreeSize(node));
 
     AvlTreeAddToArray(node, arr, &i);
+
+    return(arr);
 }
 
 int AvlTreeSize(struct NodeAvl * node)
@@ -207,4 +209,18 @@ void AvlTreeAddToArray(struct NodeAvl *node, int arr[], int *i)
     AvlTreeAddToArray(node->left, arr, i);
     AvlTreeAddToArray(node->right, arr, i);
 
+}
+
+bool AvlTreeContainId(struct NodeAvl *node, int id)
+{
+    if(node == NULL)
+        return false;
+    else{
+        if(id == node->id)
+            return true;
+        else if(id < node->id)
+            AvlTreeContainId(node->left, id);
+        else if(id > node->id)
+            AvlTreeContainId(node->right, id);
+    }
 }

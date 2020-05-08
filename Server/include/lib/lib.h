@@ -23,6 +23,7 @@
 #include	<sys/un.h>
 #include 	<pthread.h>
 #include 	<signal.h>
+#include    <stdbool.h>
 
 /*********MACROS***********/
 #define MIN(a,b) (((a)<(b))?(a):(b))
