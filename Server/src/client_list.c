@@ -94,3 +94,44 @@ void setNickName(struct ClientNode **root, int desc, char name[])
 		}
 	}
 }
+
+
+int ClientListSize(struct ClientNode* root)
+{
+	ClientList *temp = root;
+
+	int size = 0;
+
+	if(temp == NULL)
+		return 0;
+
+	while(temp != NULL)
+	{
+		size++;
+		temp = temp->next;
+	}
+}
+
+int *ClientListDescArray(struct ClientNode*root)
+{
+	ClientList *temp = root;
+	int i = 0;
+	int *arr;
+
+	arr= (int *)calloc(ClientListSize(temp), sizeof(int));
+
+	if(temp == NULL)
+	{
+		*(arr + 0) = -1;
+		return arr;
+	}
+
+	while(temp != NULL)
+	{
+		*(arr + i) = temp->data;
+		i++;
+		temp = temp->next;
+	}
+
+	return arr;
+}

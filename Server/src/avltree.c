@@ -1,6 +1,6 @@
 #include "avltree.h"
 
-NodeAvlServer *AvlTreeNewNode(int key, int desc, char server_name[])
+NodeAvlServer *AvlTreeNewNode(int key, int socket_desc)
 {
     //NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
     NodeAvlServer *node = (NodeAvlServer *)malloc(sizeof(struct NodeAvl));
@@ -9,8 +9,9 @@ NodeAvlServer *AvlTreeNewNode(int key, int desc, char server_name[])
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
-    node->client_desc = desc;
-    snprintf(node->server_name, 128, server_name);
+    node->root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
+    //node->client_desc = desc;
+    //snprintf(node->server_name, 128, server_name);
     return(node);
 }
 
@@ -58,20 +59,20 @@ int height(struct NodeAvl *y)
     return(y->height);
 }
 
-NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int desc, char server_name[])
+NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int socket_desc)
 {
     int balance;
 
     //1. Perform the normal BST insertion
     if(node == NULL)
     {
-        return(AvlTreeNewNode(key, desc, server_name));
+        return(AvlTreeNewNode(key, socket_desc));
     }
 
     if(key < node->id)
-        node->left = AvlTreeInsert(node->left, key, desc, server_name);
+        node->left = AvlTreeInsert(node->left, key, socket_desc);
     else if(key > node->id)
-        node->right = AvlTreeInsert(node->right, key, desc, server_name);
+        node->right = AvlTreeInsert(node->right, key, socket_desc);
     else //equal keys are not allowed
         return node;
 
@@ -114,7 +115,7 @@ void AvlTreePreOrder(struct NodeAvl *node)
 {
     if(node != NULL)
     {
-        printf("%d %s\n", node->id, node->server_name);
+        printf("%d\n", node->id);
         AvlTreePreOrder(node->left);
         AvlTreePreOrder(node->right);
     }
@@ -223,4 +224,81 @@ bool AvlTreeContainId(struct NodeAvl *node, int id)
         else if(id > node->id)
             AvlTreeContainId(node->right, id);
     }
+}
+
+NodeAvlServer *AvlTreeFind(struct NodeAvl * node, int id)
+{
+    NodeAvlServer *current = node;
+
+    while(current->id != id)
+    {
+        if(current != NULL)
+        {
+            if(current->id > id)
+                current = current->left;
+            else
+            {
+                current = current->right;
+            }
+
+            if(current == NULL)
+                return NULL;
+            
+        }
+
+    }
+
+    return current;
+}
+
+void AvlTreeInsertUserToChat(struct NodeAvl *node, char nickname[], int desc, int id)
+{
+    NodeAvlServer *current = NULL;
+
+    current = AvlTreeFind(node, id);
+
+    if(current == NULL)
+        return;
+
+    ClientList *now = NULL;
+    now = lastElement(&current->root_client_list);
+
+    ClientList *c = ClientListNewNode(desc, "127");
+    c->prev = now;
+	now->next = c;
+	now = c;
+
+    setNickName(&current->root_client_list, desc, nickname);
+    
+}
+
+int AvlTreeClientListSize(struct NodeAvl *node, int id)
+{
+    NodeAvlServer *current = NULL;
+
+    current = AvlTreeFind(node, id);
+
+    if(current == NULL)
+        return 0;
+
+    return(ClientListSize(current->root_client_list));
+}
+
+int *AvlTreeClientListArrayDesc(struct NodeAvl *node, int id)
+{
+    int *arr;
+
+    NodeAvlServer *current = NULL;
+
+    current = AvlTreeFind(node, id);
+
+    if(current == NULL)
+    {
+        *(arr + 0) = -1;
+        return arr;
+    }
+
+    return(ClientListSize(current->root_client_list));
+
+
 }

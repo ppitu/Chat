@@ -1,13 +1,16 @@
 #include "lib.h"
-#include "client_list.h"
+//#include "client_list.h"
 #include "avltree.h"
 
-ClientList *root_client_list = NULL;
-ClientList *now = NULL;
+int socket_desc;
+
+//ClientList *root_client_list = NULL;
+//ClientList *now = NULL;
 
 NodeAvlServer *root_avl_tree = NULL;
 
-void sendToAll(char tempbuffer[], int n, int desc)
+
+/*void sendToAll(char tempbuffer[], int n, int *arr)
 {
 	ClientList *temp = root_client_list->next;
 
@@ -21,7 +24,7 @@ void sendToAll(char tempbuffer[], int n, int desc)
 		checkedWrite(temp->data, tempbuffer, n);
 		temp = temp->next;
 	}
-}
+}*/
 
 void *doit(void * arg)
 {
@@ -31,6 +34,11 @@ void *doit(void * arg)
 	int			*arr;
 	char 		len[10];
 	int 		x;
+	char		nickname[NAMELENGTH];
+	int			recv;
+	int 		*arrClient;
+	int 		size;
+
 
 
 	connfd = *((int *)arg);
@@ -38,6 +46,21 @@ void *doit(void * arg)
 	free(arg);
 
 	checkedPthread_detach(pthread_self());
+
+	recv = checkedRead(connfd, nickname, sizeof(nickname));
+
+
+	nickname[recv] = '\0';
+
+	/*now = lastElement(&root_client_list);
+		
+	ClientList *c = ClientListNewNode(connfd, "127");//inet_ntoa(cliaddr->sin_addr));
+	c->prev = now;
+	now->next = c;
+	now = c;
+
+	setNickName(&root_client_list, connfd, nickname);*/
+
 
 	arr = AvlTreeReturnIdArray(root_avl_tree);
 	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
@@ -66,12 +89,25 @@ void *doit(void * arg)
 	if(!AvlTreeContainId(root_avl_tree, x))
 	{
 		printf("Create new chatroom id: %d\n", x);
-		root_avl_tree = AvlTreeInsert(root_avl_tree, x, connfd, recvLine);
+		root_avl_tree = AvlTreeInsert(root_avl_tree, x, socket_desc);
 	}
 
-	sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
+
+	AvlTreeInsertUserToChat(root_avl_tree, nickname, connfd, x);
+
+	size = AvlTreeClientListSize(root_avl_tree, x);
+	arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
+
+	//sendToAll(recvLine, strlen(recvLine), connfd);
+
+	for(int i = 0; i < size; i++)
+	{
+		write(*(arrClient + i), "hell", sizeof("hell"));
+	}
+
+	/*(sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
 	printf("%s\n", recvLine);
-	sendToAll(recvLine, strlen(recvLine), connfd);
+	sendToAll(recvLine, strlen(recvLine), connfd);*/
 
 	while(1)
 	{
@@ -81,23 +117,35 @@ void *doit(void * arg)
 		}
 		recvLine[n] = '\0';
 
-		sprintf(sendLine, "%s: %s", returnNickName(&root_client_list, connfd), recvLine);
+		//sprintf(sendLine, "%s: %s", returnNickName(&root_client_list, connfd), recvLine);
 
-		printf("%s", sendLine);
+		printf("%s", recvLine);
 
-		sendToAll(sendLine, strlen(sendLine), connfd);
+		size = AvlTreeClientListSize(root_avl_tree, x);
+		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
+
+		//sendToAll(recvLine, strlen(recvLine), connfd);
+
+		for(int i = 0; i < size; i++)
+		{
+			write(*(arrClient + i), "hell", sizeof("hell"));
+		}
+
+		//sendToAll(sendLine, strlen(sendLine), connfd);
 	}
-
+/*
 	free(arr);
 
 	printf("close socket: %d\n", connfd);
 	deleteNode(&root_client_list, connfd);
 
 	checkedClose(connfd);
+	*/
+	printf("lol\n");
 	return(NULL);
 }
 
-void exitServer(void)
+/*void exitServer(void)
 {
 	char str[80];
 
@@ -134,12 +182,12 @@ void exitServer(void)
 		}
 	
 	}
-}
+}*/
 
 int main(int argc, char **argv)
 {
 
-	int			socket_desc, *connect_desc, err, recv;
+	int			*connect_desc, err, recv;
 	socklen_t		addrlen, len;
 	struct sockaddr_in	*cliaddr;
 	pthread_t		thid, *exitid;
@@ -163,12 +211,12 @@ int main(int argc, char **argv)
 
 	cliaddr = checkedMalloc(addrlen);
 
-	root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
-	now = root_client_list;
+	//root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
+	//now = root_client_list;
 
 
-	exitid = checkedCalloc(1, sizeof(pthread_t));
-	checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
+	//exitid = checkedCalloc(1, sizeof(pthread_t));
+	//checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
 
 	while(1)
 	{
@@ -179,7 +227,7 @@ int main(int argc, char **argv)
 		checkedGetpeername(*connect_desc, (struct sockaddr*)cliaddr, &len);
 
 		//recv nickname
-		recv = checkedRead(*connect_desc, nickname, sizeof(nickname));
+		/*recv = checkedRead(*connect_desc, nickname, sizeof(nickname));
 
 
 		nickname[recv] = '\0';
@@ -191,7 +239,7 @@ int main(int argc, char **argv)
 		now->next = c;
 		now = c;
 
-		setNickName(&root_client_list, *connect_desc, nickname);
+		setNickName(&root_client_list, *connect_desc, nickname);*/
 
 		checkedPthread_create(&thid, NULL, &doit, connect_desc);
 	}
