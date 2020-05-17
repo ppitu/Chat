@@ -100,9 +100,12 @@ void *doit(void * arg)
 
 	//sendToAll(recvLine, strlen(recvLine), connfd);
 
-	for(int i = 0; i < size; i++)
+	printf("%d\n", *(arrClient + 0));
+	printf("size: %d\n", size);
+
+	for(int i = 1; i < size; i++)
 	{
-		write(*(arrClient + i), "hell", sizeof("hell"));
+		checkedWrite(*(arrClient + i), "hello", strlen("hello"));
 	}
 
 	/*(sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
@@ -122,13 +125,15 @@ void *doit(void * arg)
 		printf("%s", recvLine);
 
 		size = AvlTreeClientListSize(root_avl_tree, x);
+		printf("size1 %d\n", size);
 		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
 
 		//sendToAll(recvLine, strlen(recvLine), connfd);
 
-		for(int i = 0; i < size; i++)
+		for(int i = 1; i < size; i++)
 		{
-			write(*(arrClient + i), "hell", sizeof("hell"));
+			printf("ass %d\n", *(arrClient + i));
+			checkedWrite(*(arrClient + i), "hell", strlen("hell"));
 		}
 
 		//sendToAll(sendLine, strlen(sendLine), connfd);

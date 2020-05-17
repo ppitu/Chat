@@ -298,7 +298,7 @@ int *AvlTreeClientListArrayDesc(struct NodeAvl *node, int id)
         return arr;
     }
 
-    return(ClientListSize(current->root_client_list));
+    return(ClientListDescArray(current->root_client_list));
 
 
 }

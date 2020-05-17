@@ -110,6 +110,8 @@ int ClientListSize(struct ClientNode* root)
 		size++;
 		temp = temp->next;
 	}
+
+	return size;
 }
 
 int *ClientListDescArray(struct ClientNode*root)
