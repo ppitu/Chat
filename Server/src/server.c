@@ -10,21 +10,16 @@ int socket_desc;
 NodeAvlServer *root_avl_tree = NULL;
 
 
-/*void sendToAll(char tempbuffer[], int n, int *arr)
+void sendToAll(char tempbuffer[], int *arr, int size)
 {
-	ClientList *temp = root_client_list->next;
+	int i;
 
-	while(temp != NULL)
-	{
-		if(temp->data == desc)
-		{	
-			temp = temp->next;
-			continue;
-		} 
-		checkedWrite(temp->data, tempbuffer, n);
-		temp = temp->next;
-	}
-}*/
+	for(i = 1; i < size; i++)
+		{
+			printf("ass %d\n", *(arr + i));
+			checkedWrite(*(arr + i), tempbuffer, strlen(tempbuffer));
+		}
+}
 
 void *doit(void * arg)
 {
@@ -105,7 +100,7 @@ void *doit(void * arg)
 
 	for(int i = 1; i < size; i++)
 	{
-		checkedWrite(*(arrClient + i), "hello", strlen("hello"));
+		checkedWrite(*(arrClient + i), "hello\n", strlen("hello\n"));
 	}
 
 	/*(sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
@@ -128,15 +123,8 @@ void *doit(void * arg)
 		printf("size1 %d\n", size);
 		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
 
-		//sendToAll(recvLine, strlen(recvLine), connfd);
+		sendToAll(recvLine, arrClient, size);
 
-		for(int i = 1; i < size; i++)
-		{
-			printf("ass %d\n", *(arrClient + i));
-			checkedWrite(*(arrClient + i), "hell", strlen("hell"));
-		}
-
-		//sendToAll(sendLine, strlen(sendLine), connfd);
 	}
 /*
 	free(arr);
