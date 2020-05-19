@@ -36,5 +36,8 @@ NodeAvlServer *AvlTreeFind(struct NodeAvl *, int);
 void AvlTreeInsertUserToChat(struct NodeAvl *, char[], int, int);
 int AvlTreeClientListSize(struct NodeAvl *, int );
 int *AvlTreeClientListArrayDesc(struct NodeAvl *, int );
+void AvlTreeRemoveClient(struct NodeAvl*, int, int);
+void AvlTreeDestructor(struct NodeAvl*);
+char *AvlTreeReturnNickName(struct NodeAvl *, int, int);
 
 #endif //AVLTREE_H_

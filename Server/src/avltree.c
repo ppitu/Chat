@@ -302,3 +302,40 @@ int *AvlTreeClientListArrayDesc(struct NodeAvl *node, int id)
 
 
 }
+
+void AvlTreeRemoveClient(struct NodeAvl *node, int client, int id)
+{
+    NodeAvlServer *current = NULL;
+
+    current = AvlTreeFind(node, id);
+
+    if(current == NULL)
+        return;
+
+    ClientListDeleteNode(current->root_client_list, client);
+}
+
+void AvlTreeDestructor(struct NodeAvl *node)
+{
+    NodeAvlServer *temp = node;
+
+    if(temp->left != NULL)
+        AvlTreeDestructor(temp->left);
+    if(temp->right != NULL)
+        AvlTreeDestructor(temp->right);
+    
+    ClientListDestructor(temp->root_client_list);
+
+    free(temp);
+    return;
+
+}
+
+char *AvlTreeReturnNickName(struct NodeAvl *node, int id, int desc)
+{
+    NodeAvlServer *current = NULL;
+
+    current = AvlTreeFind(node, id);
+
+    return(ClientListReturnNickName(current->root_client_list, desc));
+}

@@ -11,17 +11,17 @@ ClientList *ClientListNewNode(int socket_desc, char *ip)
 	return(temp);
 }
 
-void deleteNode(struct ClientNode **root, int desc)
+void ClientListDeleteNode(struct ClientNode *root, int desc)
 {
-	ClientList 	*temp = *root;
+	ClientList *temp = root;
 
-	if(*root == NULL)
+	if(root == NULL)
 		return;
 
 	/*if node to be deleted is head node*/
 	if(temp->data == desc)
 	{
-		*root = temp->next;
+		root = temp->next;
 	}
 
 	while(temp != NULL && temp->data != desc)
@@ -56,9 +56,9 @@ ClientList *lastElement(struct ClientNode **root)
 	return temp;
 }
 
-char *returnNickName(struct ClientNode **root, int desc)
+char *ClientListReturnNickName(struct ClientNode *root, int desc)
 {
-	ClientList *temp = *root;
+	ClientList *temp = root;
 
 	if(temp->data == desc)
 		return temp->name;
@@ -136,4 +136,19 @@ int *ClientListDescArray(struct ClientNode*root)
 	}
 
 	return arr;
+}
+
+void ClientListDestructor(struct ClientNode *root)
+{
+	ClientList *current = root;
+
+	while(current != NULL)
+	{
+		ClientList *next = current->next;
+		printf("Client close: %d\n", current->data);
+		free(current);
+		current = next;
+	}
+
+	root = NULL;
 }

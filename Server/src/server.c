@@ -16,7 +16,6 @@ void sendToAll(char tempbuffer[], int *arr, int size)
 
 	for(i = 1; i < size; i++)
 		{
-			printf("ass %d\n", *(arr + i));
 			checkedWrite(*(arr + i), tempbuffer, strlen(tempbuffer));
 		}
 }
@@ -47,16 +46,6 @@ void *doit(void * arg)
 
 	nickname[recv] = '\0';
 
-	/*now = lastElement(&root_client_list);
-		
-	ClientList *c = ClientListNewNode(connfd, "127");//inet_ntoa(cliaddr->sin_addr));
-	c->prev = now;
-	now->next = c;
-	now = c;
-
-	setNickName(&root_client_list, connfd, nickname);*/
-
-
 	arr = AvlTreeReturnIdArray(root_avl_tree);
 	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
 
@@ -72,13 +61,9 @@ void *doit(void * arg)
 	printf("%s\n", recvLine);
 
 	checkedWrite(connfd, arr, sizeof(int) * avl_tree_size_doit);
-	//fwrite(arr, sizeof(int), sizeof(arr), connfd);
-	printf("Send avl id array\n");
-	//checkedWrite(connfd, "l", sizeof("l"));
-	
-	//n = checkedRead(connfd, recvLine, MAXLINE);
 
-	//recvLine[n] = '\0';
+	printf("Send avl id array\n");
+
 	checkedRead(connfd, &x, sizeof(x));
 
 	if(!AvlTreeContainId(root_avl_tree, x))
@@ -93,19 +78,9 @@ void *doit(void * arg)
 	size = AvlTreeClientListSize(root_avl_tree, x);
 	arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
 
-	//sendToAll(recvLine, strlen(recvLine), connfd);
-
-	printf("%d\n", *(arrClient + 0));
-	printf("size: %d\n", size);
-
-	for(int i = 1; i < size; i++)
-	{
-		checkedWrite(*(arrClient + i), "hello\n", strlen("hello\n"));
-	}
-
-	/*(sprintf(recvLine, "%s join the chatroom.\n", returnNickName(&root_client_list, connfd));
+	sprintf(recvLine, "%s join the chatroom.\n", AvlTreeReturnNickName(root_avl_tree, x, connfd));
 	printf("%s\n", recvLine);
-	sendToAll(recvLine, strlen(recvLine), connfd);*/
+	sendToAll(recvLine, arrClient, size);
 
 	while(1)
 	{
@@ -120,25 +95,23 @@ void *doit(void * arg)
 		printf("%s", recvLine);
 
 		size = AvlTreeClientListSize(root_avl_tree, x);
-		printf("size1 %d\n", size);
 		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
 
 		sendToAll(recvLine, arrClient, size);
 
 	}
-/*
-	free(arr);
+
+	free(arrClient);
 
 	printf("close socket: %d\n", connfd);
-	deleteNode(&root_client_list, connfd);
+	AvlTreeRemoveClient(root_avl_tree, connfd, x);
 
 	checkedClose(connfd);
-	*/
-	printf("lol\n");
+
 	return(NULL);
 }
 
-/*void exitServer(void)
+void exitServer(void)
 {
 	char str[80];
 
@@ -146,36 +119,23 @@ void *doit(void * arg)
 	{
 		scanf("%s", str);
 
-		if(strcmp(str, "user") == 0)
+		/*if(strcmp(str, "user") == 0)
 		{
 			AvlTreePreOrder(root_avl_tree);
 			printf("\n");
-		}
+		}*/
 
 		if(strcmp(str, "exit") == 0)
 		{
-		
-		ClientList *temp = root_client_list->next;
-		ClientList *temphelp;
-		while(temp != NULL)
-		{
-			checkedClose(temp->data);
-			printf("Close socket_desc: %d\n", temp->data);	
-			temphelp = temp;
-			temp = temp->next;
-			free(temphelp);
-		}	
 
-		printf("Close socket_desc: %d\n", root_client_list->data);
-		checkedClose(root_client_list->data);
-		free(root_client_list);
+			AvlTreeDestructor(root_avl_tree);
 
-		printf("Bye\n");
-		exit(EXIT_SUCCESS);
+			printf("Bye\n");
+			exit(EXIT_SUCCESS);
 		}
 	
 	}
-}*/
+}
 
 int main(int argc, char **argv)
 {
@@ -204,12 +164,8 @@ int main(int argc, char **argv)
 
 	cliaddr = checkedMalloc(addrlen);
 
-	//root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
-	//now = root_client_list;
-
-
-	//exitid = checkedCalloc(1, sizeof(pthread_t));
-	//checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
+	exitid = checkedCalloc(1, sizeof(pthread_t));
+	checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
 
 	while(1)
 	{
@@ -218,21 +174,6 @@ int main(int argc, char **argv)
 		*connect_desc = checkedAccept(socket_desc, (struct sockaddr *)cliaddr, &len);
 
 		checkedGetpeername(*connect_desc, (struct sockaddr*)cliaddr, &len);
-
-		//recv nickname
-		/*recv = checkedRead(*connect_desc, nickname, sizeof(nickname));
-
-
-		nickname[recv] = '\0';
-
-		now = lastElement(&root_client_list);
-		
-		ClientList *c = ClientListNewNode(*connect_desc, inet_ntoa(cliaddr->sin_addr));
-		c->prev = now;
-		now->next = c;
-		now = c;
-
-		setNickName(&root_client_list, *connect_desc, nickname);*/
 
 		checkedPthread_create(&thid, NULL, &doit, connect_desc);
 	}
