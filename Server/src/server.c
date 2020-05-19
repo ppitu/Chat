@@ -1,21 +1,21 @@
 #include "lib.h"
-//#include "client_list.h"
 #include "avltree.h"
 
 int socket_desc;
 
-//ClientList *root_client_list = NULL;
-//ClientList *now = NULL;
+
 
 NodeAvlServer *root_avl_tree = NULL;
 
-
-void sendToAll(char tempbuffer[], int *arr, int size)
+//the function sends a message to everyone in the chat
+void sendToAll(char tempbuffer[], int *arr, int size, int desc)
 {
 	int i;
 
 	for(i = 1; i < size; i++)
 		{
+			if(*(arr + i) == desc)
+				continue;
 			checkedWrite(*(arr + i), tempbuffer, strlen(tempbuffer));
 		}
 }
@@ -27,7 +27,7 @@ void *doit(void * arg)
 	int			connfd, avl_tree_size_doit;
 	int			*arr;
 	char 		len[10];
-	int 		x;
+	int 		id; //server id on the avl tree
 	char		nickname[NAMELENGTH];
 	int			recv;
 	int 		*arrClient;
@@ -64,23 +64,25 @@ void *doit(void * arg)
 
 	printf("Send avl id array\n");
 
-	checkedRead(connfd, &x, sizeof(x));
+	checkedRead(connfd, &id, sizeof(id));
 
-	if(!AvlTreeContainId(root_avl_tree, x))
+	//if the avl tree does not contain chat on the given id create a new chat
+	if(!AvlTreeContainId(root_avl_tree, id))
 	{
-		printf("Create new chatroom id: %d\n", x);
-		root_avl_tree = AvlTreeInsert(root_avl_tree, x, socket_desc);
+		printf("Create new chatroom id: %d\n", id);
+		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc);
 	}
 
 
-	AvlTreeInsertUserToChat(root_avl_tree, nickname, connfd, x);
+	AvlTreeInsertUserToChat(root_avl_tree, nickname, connfd, id);
 
-	size = AvlTreeClientListSize(root_avl_tree, x);
-	arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
+	//download the number of users and their desc
+	size = AvlTreeClientListSize(root_avl_tree, id);
+	arrClient = AvlTreeClientListArrayDesc(root_avl_tree, id);
 
-	sprintf(recvLine, "%s join the chatroom.\n", AvlTreeReturnNickName(root_avl_tree, x, connfd));
+	sprintf(recvLine, "%s join the chatroom.\n", AvlTreeReturnNickName(root_avl_tree, id, connfd));
 	printf("%s\n", recvLine);
-	sendToAll(recvLine, arrClient, size);
+	sendToAll(recvLine, arrClient, size, connfd);
 
 	while(1)
 	{
@@ -90,21 +92,24 @@ void *doit(void * arg)
 		}
 		recvLine[n] = '\0';
 
-		//sprintf(sendLine, "%s: %s", returnNickName(&root_client_list, connfd), recvLine);
+		//sprintf(sendLine, "%s: %s", AvlTreeReturnNickName(root_avl_tree, x, connfd), recvLine);
 
 		printf("%s", recvLine);
 
-		size = AvlTreeClientListSize(root_avl_tree, x);
-		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, x);
+		size = AvlTreeClientListSize(root_avl_tree, id);
+		arrClient = AvlTreeClientListArrayDesc(root_avl_tree, id);
 
-		sendToAll(recvLine, arrClient, size);
+		sendToAll(recvLine, arrClient, size, connfd);
 
 	}
 
-	free(arrClient);
+	sprintf(recvLine, "%s leaves the chat\n", AvlTreeReturnNickName(root_avl_tree, id, connfd));
+	sendToAll(recvLine, arrClient, size, connfd);
 
+	free(arrClient);
+	
 	printf("close socket: %d\n", connfd);
-	AvlTreeRemoveClient(root_avl_tree, connfd, x);
+	AvlTreeRemoveClient(root_avl_tree, connfd, id);
 
 	checkedClose(connfd);
 
@@ -164,11 +169,14 @@ int main(int argc, char **argv)
 
 	cliaddr = checkedMalloc(addrlen);
 
+
+	//server command support
 	exitid = checkedCalloc(1, sizeof(pthread_t));
 	checkedPthread_create(&exitid[0], NULL, (void*)&exitServer, NULL);
 
 	while(1)
 	{
+		//answer call and start user thread
 		len = addrlen;
 		connect_desc = checkedMalloc(sizeof(int));
 		*connect_desc = checkedAccept(socket_desc, (struct sockaddr *)cliaddr, &len);

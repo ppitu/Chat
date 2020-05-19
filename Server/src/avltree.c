@@ -317,6 +317,9 @@ void AvlTreeRemoveClient(struct NodeAvl *node, int client, int id)
 
 void AvlTreeDestructor(struct NodeAvl *node)
 {
+    if(node == NULL)
+        return;
+
     NodeAvlServer *temp = node;
 
     if(temp->left != NULL)
