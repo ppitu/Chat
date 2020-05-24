@@ -48,7 +48,6 @@ void send_msg()
 				end++;
 				break;
 			}
-
 			checkedWrite(socket_desc, sendLine, strlen(sendLine));
 		}
 	}
@@ -112,15 +111,15 @@ int main(int argc, char **argv)
 	pthread_t recv_msg_thread;
 	checkedPthread_create(&recv_msg_thread, NULL, (void *)recv_msg, NULL);
 
-	
-	while(1)
+
+	pthread_join(send_msg_thread, NULL);
+
+
+	if(flag == 1)
 	{
-		if(flag == 1)
-		{
-			printf("Bye\n");
-			break;
-		}
+		printf("Bye\n");
 	}
+
 
 	free(arr);
 

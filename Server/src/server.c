@@ -81,7 +81,7 @@ void *doit(void * arg)
 	arrClient = AvlTreeClientListArrayDesc(root_avl_tree, id);
 
 	sprintf(recvLine, "%s join the chatroom.\n", AvlTreeReturnNickName(root_avl_tree, id, connfd));
-	printf("%s\n", recvLine);
+	printf("%s", recvLine);
 	sendToAll(recvLine, arrClient, size, connfd);
 
 	while(1)
