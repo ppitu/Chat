@@ -3,11 +3,11 @@
 ClientList *ClientListNewNode(int socket_desc, char *ip)
 {
 	ClientList *temp = (ClientList *)malloc(sizeof(ClientList));
-	temp->data = socket_desc;
+	temp->socket_desc = socket_desc;
 	temp->prev = NULL;
 	temp->next = NULL;
 	strncpy(temp->ip, ip, 16);
-	strncpy(temp->name, "NULL", 5 );
+	strncpy(temp->nick_name, "NULL", 5);
 	return(temp);
 }
 
@@ -19,12 +19,12 @@ void ClientListDeleteNode(struct ClientNode *root, int desc)
 		return;
 
 	/*if node to be deleted is head node*/
-	if(temp->data == desc)
+	if(temp->socket_desc == desc)
 	{
 		root = temp->next;
 	}
 
-	while(temp != NULL && temp->data != desc)
+	while(temp != NULL && temp->socket_desc != desc)
 		temp = temp->next;
 
 	if(temp == NULL)
@@ -60,28 +60,28 @@ char *ClientListReturnNickName(struct ClientNode *root, int desc)
 {
 	ClientList *temp = root;
 
-	if(temp->data == desc)
-		return temp->name;
+	if(temp->socket_desc == desc)
+		return temp->nick_name;
 
-	while(temp != NULL && temp->data != desc)
+	while(temp != NULL && temp->socket_desc != desc)
 		temp = temp->next;
 
 	if(temp == NULL)
 		return"";
 
-	return temp->name;	
+	return temp->nick_name;	
 }
 
 void setNickName(struct ClientNode **root, int desc, char name[])
 {
 	ClientList *temp = *root;
 
-	if(temp->data == desc)
+	if(temp->socket_desc == desc)
 	{
-		strcpy(name, temp->name);
+		strcpy(name, temp->nick_name);
 	} else 
 	{
-		while(temp != NULL && temp->data != desc)
+		while(temp != NULL && temp->socket_desc != desc)
 			temp = temp->next;
 
 		if(temp == NULL)
@@ -90,7 +90,7 @@ void setNickName(struct ClientNode **root, int desc, char name[])
 		}
 		else
 		{
-			strncpy(temp->name, name, NAMELENGTH);
+			strncpy(temp->nick_name, name, NAMELENGTH);
 		}
 	}
 }
@@ -130,7 +130,7 @@ int *ClientListDescArray(struct ClientNode*root)
 
 	while(temp != NULL)
 	{
-		*(arr + i) = temp->data;
+		*(arr + i) = temp->socket_desc;
 		i++;
 		temp = temp->next;
 	}
@@ -145,7 +145,7 @@ void ClientListDestructor(struct ClientNode *root)
 	while(current != NULL)
 	{
 		ClientList *next = current->next;
-		printf("Client close: %d\n", current->data);
+		printf("Client close: %d\n", current->socket_desc);
 		free(current);
 		current = next;
 	}

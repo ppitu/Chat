@@ -1,6 +1,8 @@
 #include "lib.h"
 #include "avltree.h"
 
+#include    <json-c/json.h>
+
 int socket_desc;
 
 
@@ -32,7 +34,16 @@ void *doit(void * arg)
 	int			recv;
 	int 		*arrClient;
 	int 		size;
+	char 		**server_name;
 
+	//Creating a json object
+	json_object *jobj = json_object_new_object();
+
+	//Creating a json array
+	json_object *jarrayint = json_object_new_array();
+
+	//Creatint a json array of strings
+	json_object *jarraystring = json_object_new_array();
 
 
 	connfd = *((int *)arg);
@@ -47,30 +58,57 @@ void *doit(void * arg)
 	nickname[recv] = '\0';
 
 	arr = AvlTreeReturnIdArray(root_avl_tree);
+
+	server_name = AvlTreeReturnServerNameArray(root_avl_tree);
+
 	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
 
 	if(avl_tree_size_doit > 0)
 		printf("%d\n", *(arr + 0));
 
-	//send len and avl-tree-id-list
-	sprintf(len, "%d", avl_tree_size_doit);
-	checkedWrite(connfd, len, sizeof(len));
-	printf("Wyslalem len\n");
+	for(int i = 0; i < avl_tree_size_doit; i++)
+	{
+		//creating a json integer
+		json_object *jint = json_object_new_int(*(arr + i));
 
-	checkedRead(connfd, recvLine, MAXLINE);
-	printf("%s\n", recvLine);
+		//creating a json string
 
-	checkedWrite(connfd, arr, sizeof(int) * avl_tree_size_doit);
+		json_object *jstring = json_object_new_string(*(server_name + i));
 
-	printf("Send avl id array\n");
+		//add json int to the array
+		json_object_array_add(jarrayint, jint);
+		//add json string to the array
+		json_object_array_add(jarraystring, jstring);
+	}
+
+
+	//form the json object
+
+	json_object_object_add(jobj, "Array", jarrayint);
+	json_object_object_add(jobj, "Server Name", jarraystring);
+	//json_object_object_add(jobj, "Size", jintsize);
+
+	printf("The josn %s\n", json_object_to_json_string(jobj));
+
+	checkedWrite(connfd, json_object_to_json_string(jobj), strlen(json_object_to_json_string(jobj)));
+
+	if(AvlTreeSize(root_avl_tree) != 0)
+	{
+		for(int i = 0; i < AvlTreeSize(root_avl_tree); i++)
+			puts(server_name[i]);
+	}
+
+	//checkedWrite(connfd, server_name, sizeof(server_name));
 
 	checkedRead(connfd, &id, sizeof(id));
+
+	//checkedRead(connfd, server_name, MAXLINE);
 
 	//if the avl tree does not contain chat on the given id create a new chat
 	if(!AvlTreeContainId(root_avl_tree, id))
 	{
-		printf("Create new chatroom id: %d\n", id);
-		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc);
+		printf("Create new chatroom id: %d and name:\n", id);
+		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, "lol");
 	}
 
 
@@ -107,6 +145,7 @@ void *doit(void * arg)
 	sendToAll(recvLine, arrClient, size, connfd);
 
 	free(arrClient);
+	free(server_name);
 	
 	printf("close socket: %d\n", connfd);
 	AvlTreeRemoveClient(root_avl_tree, connfd, id);

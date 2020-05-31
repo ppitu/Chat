@@ -4,11 +4,11 @@
 #include "lib.h"
 
 typedef struct ClientNode {
-	int data;
+	int socket_desc;
 	struct ClientNode* prev;
 	struct ClientNode* next;
 	char ip[16];
-	char name[NAMELENGTH];
+	char nick_name[NAMELENGTH];
 } ClientList;
 
 ClientList *ClientListNewNode(int, char *);

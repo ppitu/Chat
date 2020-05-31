@@ -5,4 +5,4 @@ SOURCE=$(wildcard src/*.c)
 
 
 client: $(SOURCE)
-	$(CC) -pthread -o client $(SOURCE) $(SOURCE1) $(INCLUDE)
+	$(CC) -pthread -o client $(SOURCE) $(SOURCE1) $(INCLUDE) -ljson-c

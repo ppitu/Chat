@@ -7,6 +7,7 @@
 typedef struct NodeAvl
 {
     int id;
+    char server_name[NAMELENGTH];
     struct NodeAvl *left;
     struct NodeAvl *right;
     //struct NodeAvl *up;
@@ -17,20 +18,20 @@ typedef struct NodeAvl
 
 } NodeAvlServer;
 
-NodeAvlServer *AvlTreeNewNode(int, int);
+NodeAvlServer *AvlTreeNewNode(int, int, char *);
 NodeAvlServer *singleRightRotate(struct NodeAvl *);
 NodeAvlServer *singleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleRightRotate(struct NodeAvl *);
 int height(struct NodeAvl *);
 int getBalance(struct NodeAvl *);
-NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, int);
+NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, int, char *);
 void AvlTreePreOrder(struct NodeAvl *);
 NodeAvlServer *AvlTreeDeleteNode(struct NodeAvl *, int);
 NodeAvlServer *AvlTreeMinValeNode(struct NodeAvl *);
 int AvlTreeSize(struct NodeAvl*);
 int *AvlTreeReturnIdArray(struct NodeAvl *);
-void AvlTreeAddToArray(struct NodeAvl *, int[], int*);
+void AvlTreeIdToArray(struct NodeAvl *, int[], int*);
 bool AvlTreeContainId(struct NodeAvl *, int);
 NodeAvlServer *AvlTreeFind(struct NodeAvl *, int);
 void AvlTreeInsertUserToChat(struct NodeAvl *, char[], int, int);
@@ -39,5 +40,8 @@ int *AvlTreeClientListArrayDesc(struct NodeAvl *, int );
 void AvlTreeRemoveClient(struct NodeAvl*, int, int);
 void AvlTreeDestructor(struct NodeAvl*);
 char *AvlTreeReturnNickName(struct NodeAvl *, int, int);
+char **AvlTreeReturnServerNameArray(struct NodeAvl *);
+void AvlTreeServerNameToArray(struct NodeAvl *, char **, int *);
+
 
 #endif //AVLTREE_H_

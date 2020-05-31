@@ -1,11 +1,12 @@
 #include "avltree.h"
 
-NodeAvlServer *AvlTreeNewNode(int key, int socket_desc)
+NodeAvlServer *AvlTreeNewNode(int key, int socket_desc, char *server_name)
 {
     //NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
-    NodeAvlServer *node = (NodeAvlServer *)malloc(sizeof(struct NodeAvl));
+    NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
     
     node->id = key;
+    strncpy(node->server_name, server_name, strlen(server_name));
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
@@ -59,20 +60,20 @@ int height(struct NodeAvl *y)
     return(y->height);
 }
 
-NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int socket_desc)
+NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int socket_desc, char *name)
 {
     int balance;
 
     //1. Perform the normal BST insertion
     if(node == NULL)
     {
-        return(AvlTreeNewNode(key, socket_desc));
+        return(AvlTreeNewNode(key, socket_desc, name));
     }
 
     if(key < node->id)
-        node->left = AvlTreeInsert(node->left, key, socket_desc);
+        node->left = AvlTreeInsert(node->left, key, socket_desc, name);
     else if(key > node->id)
-        node->right = AvlTreeInsert(node->right, key, socket_desc);
+        node->right = AvlTreeInsert(node->right, key, socket_desc, name);
     else //equal keys are not allowed
         return node;
 
@@ -184,7 +185,7 @@ int *AvlTreeReturnIdArray(struct NodeAvl *node)
 
     arr= (int *)calloc(AvlTreeSize(node), sizeof(int));// * AvlTreeSize(node));
 
-    AvlTreeAddToArray(node, arr, &i);
+    AvlTreeIdToArray(node, arr, &i);
 
     return(arr);
 }
@@ -200,15 +201,15 @@ int AvlTreeSize(struct NodeAvl * node)
     
 }
 
-void AvlTreeAddToArray(struct NodeAvl *node, int arr[], int *i)
+void AvlTreeIdToArray(struct NodeAvl *node, int arr[], int *i)
 {
     if(node == NULL)
         return;
 
     *(arr + *i) = node->id;
     ++*i;
-    AvlTreeAddToArray(node->left, arr, i);
-    AvlTreeAddToArray(node->right, arr, i);
+    AvlTreeIdToArray(node->left, arr, i);
+    AvlTreeIdToArray(node->right, arr, i);
 
 }
 
@@ -341,4 +342,37 @@ char *AvlTreeReturnNickName(struct NodeAvl *node, int id, int desc)
     current = AvlTreeFind(node, id);
 
     return(ClientListReturnNickName(current->root_client_list, desc));
+}
+
+char **AvlTreeReturnServerNameArray(struct NodeAvl *node)
+{
+    char **arr;
+    int avl_size = AvlTreeSize(node);
+    int i;
+    int j = 0;
+
+    arr = (char **)malloc(avl_size * sizeof(char *));
+
+    for(i = 0; i < avl_size; i++)
+        arr[i] = (char *)malloc(NAMELENGTH * sizeof(char));
+
+    //arr = (char *)malloc(2048 * sizeof(char));
+
+    AvlTreeServerNameToArray(node, arr, &j);
+
+    return arr;
+}
+
+void AvlTreeServerNameToArray(struct NodeAvl *node, char **arr, int *i)
+{
+    if(node == NULL)
+        return;
+
+    //strncat(arr, node->server_name, strlen(node->server_name));
+    strcpy(arr[*i], node->server_name);
+    ++*i;
+
+    AvlTreeServerNameToArray(node->left, arr, i);
+    AvlTreeServerNameToArray(node->right, arr, i);
+
 }
