@@ -1,3 +1,4 @@
+
 #ifndef LIB_H_
 #define LIB_H_
 
@@ -24,6 +25,7 @@
 #include 	<pthread.h>
 #include 	<signal.h>
 #include    <stdbool.h>
+#include <json-c/json.h>
 
 //#include    "avltree.h"
 //#include    "client_list.h"
@@ -44,6 +46,8 @@ int tcp_listen(const char *, const char* , socklen_t *); //implementation in tcp
 int tcp_connect(const char*, const char* ); //implementation in tcp_connect.c
 
 ssize_t Readline(int , void *, size_t);
+
+//void SendChatRoomList(int, NodeAvlServer *);
 
 /********WRAPPING FUNCTIONS***************/
 

@@ -1,8 +1,6 @@
 #include "lib.h"
 #include "avltree.h"
 
-#include <json-c/json.h>
-
 void SendChatRoomList(int connect_desc, NodeAvlServer *root_avl_tree)
 {
     int			*id_arr;

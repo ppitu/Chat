@@ -1,6 +1,5 @@
 #include "lib.h"
 #include "avltree.h"
-#include "send_chatroom_list.h"
 
 #include    <json-c/json.h>
 
@@ -36,6 +35,7 @@ void *doit(void * arg)
 	int 		*arrClient;
 	int 		size;
 	char 		**server_name;
+	char		name_server[NAMELENGTH];
 
 	connfd = *((int *)arg);
 
@@ -58,13 +58,13 @@ void *doit(void * arg)
 
 	checkedRead(connfd, &id, sizeof(id));
 
-	//checkedRead(connfd, server_name, MAXLINE);
+	checkedRead(connfd, name_server, sizeof(name_server));
 
 	//if the avl tree does not contain chat on the given id create a new chat
 	if(!AvlTreeContainId(root_avl_tree, id))
 	{
-		printf("Create new chatroom id: %d and name:\n", id);
-		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, "lol");
+		printf("Create new chatroom id: %d and name: %s\n", id, name_server);
+		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, name_server);
 	}
 
 

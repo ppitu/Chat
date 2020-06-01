@@ -112,8 +112,8 @@ int main(int argc, char **argv)
 	}
 	
 
-	//printf("Enter server name: ");
-	//scanf("%s", server_name);
+	printf("Enter server name: ");
+	scanf("%s", server_name);
 
 	printf("Enter id: ");
 	scanf("%d", &id);
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 	//checkedWrite(socket_desc, server_name, strlen(server_name));
 	checkedWrite(socket_desc, &id, sizeof(id));
 
-	//checkedWrite(socket_desc, server_name, strlen(server_name));
+	checkedWrite(socket_desc, server_name, strlen(server_name));
 
 	pthread_t send_msg_thread;
 	checkedPthread_create(&send_msg_thread, NULL, (void *)send_msg, NULL);
