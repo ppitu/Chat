@@ -1,5 +1,6 @@
 #include "lib.h"
 #include "avltree.h"
+#include "send_chatroom_list.h"
 
 #include    <json-c/json.h>
 
@@ -36,16 +37,6 @@ void *doit(void * arg)
 	int 		size;
 	char 		**server_name;
 
-	//Creating a json object
-	json_object *jobj = json_object_new_object();
-
-	//Creating a json array
-	json_object *jarrayint = json_object_new_array();
-
-	//Creatint a json array of strings
-	json_object *jarraystring = json_object_new_array();
-
-
 	connfd = *((int *)arg);
 
 	free(arg);
@@ -57,48 +48,13 @@ void *doit(void * arg)
 
 	nickname[recv] = '\0';
 
-	arr = AvlTreeReturnIdArray(root_avl_tree);
-
-	server_name = AvlTreeReturnServerNameArray(root_avl_tree);
-
-	avl_tree_size_doit = AvlTreeSize(root_avl_tree);
 
 	if(avl_tree_size_doit > 0)
 		printf("%d\n", *(arr + 0));
 
-	for(int i = 0; i < avl_tree_size_doit; i++)
-	{
-		//creating a json integer
-		json_object *jint = json_object_new_int(*(arr + i));
 
-		//creating a json string
+	SendChatRoomList(connfd, root_avl_tree);
 
-		json_object *jstring = json_object_new_string(*(server_name + i));
-
-		//add json int to the array
-		json_object_array_add(jarrayint, jint);
-		//add json string to the array
-		json_object_array_add(jarraystring, jstring);
-	}
-
-
-	//form the json object
-
-	json_object_object_add(jobj, "Array", jarrayint);
-	json_object_object_add(jobj, "Server Name", jarraystring);
-	//json_object_object_add(jobj, "Size", jintsize);
-
-	printf("The josn %s\n", json_object_to_json_string(jobj));
-
-	checkedWrite(connfd, json_object_to_json_string(jobj), strlen(json_object_to_json_string(jobj)));
-
-	if(AvlTreeSize(root_avl_tree) != 0)
-	{
-		for(int i = 0; i < AvlTreeSize(root_avl_tree); i++)
-			puts(server_name[i]);
-	}
-
-	//checkedWrite(connfd, server_name, sizeof(server_name));
 
 	checkedRead(connfd, &id, sizeof(id));
 
@@ -145,7 +101,6 @@ void *doit(void * arg)
 	sendToAll(recvLine, arrClient, size, connfd);
 
 	free(arrClient);
-	free(server_name);
 	
 	printf("close socket: %d\n", connfd);
 	AvlTreeRemoveClient(root_avl_tree, connfd, id);
