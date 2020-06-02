@@ -35,7 +35,11 @@ void *doit(void * arg)
 	int 		*arrClient;
 	int 		size;
 	char 		**server_name;
+	int			choice;
 	char		name_server[NAMELENGTH];
+	int 		contain;
+	int 		pom = 0;
+	int			value = -1;
 
 	connfd = *((int *)arg);
 
@@ -43,6 +47,7 @@ void *doit(void * arg)
 
 	checkedPthread_detach(pthread_self());
 
+	//recive nickname
 	recv = checkedRead(connfd, nickname, sizeof(nickname));
 
 
@@ -55,18 +60,45 @@ void *doit(void * arg)
 
 	SendChatRoomList(connfd, root_avl_tree);
 
+	//receive choice
+	checkedRead(connfd, &choice, sizeof(choice));
 
-	checkedRead(connfd, &id, sizeof(id));
+	value = AvlTreeFindSmallestMissingIdValue(root_avl_tree);
 
-	checkedRead(connfd, name_server, sizeof(name_server));
+	printf("Value %d", value);
 
-	//if the avl tree does not contain chat on the given id create a new chat
-	if(!AvlTreeContainId(root_avl_tree, id))
+	if(choice == 1)
 	{
-		printf("Create new chatroom id: %d and name: %s\n", id, name_server);
-		root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, name_server);
-	}
+		while(pom == 0)
+		{
+			checkedRead(connfd, &id, sizeof(id));
+		
+			if(AvlTreeContainId(root_avl_tree, id))
+			{
+				pom++;
+			}
+			
+			checkedWrite(connfd, &pom, sizeof(pom));
+		}
 
+	}else {
+		while(pom == 0)
+		{
+			checkedRead(connfd, &id, sizeof(id));
+		
+			if(!AvlTreeContainId(root_avl_tree, id))
+			{
+				pom++;
+				printf("Create new chatroom id: %d and name: %s\n", id, name_server);
+				root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, "lol");
+			}
+			
+			checkedWrite(connfd, &pom, sizeof(pom));
+		}
+	}
+	
+
+	//checkedRead(connfd, name_server, sizeof(name_server));
 
 	AvlTreeInsertUserToChat(root_avl_tree, nickname, connfd, id);
 

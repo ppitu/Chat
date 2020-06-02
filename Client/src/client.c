@@ -59,10 +59,13 @@ int main(int argc, char **argv)
 {
 	char 	server_name[128];
 	int 	*arr;
-	int		len, i;
+	int		*idarray;
+	int		len, i, d, q;
 	int 	id;
+	int 	contain = 0;
 	int 	n;
 	char 	json_buffer[1024];
+	int		choice;
 	size_t 	json_array_size;
 	struct json_object *paresd_json;
 	struct json_object *jarr;
@@ -88,7 +91,6 @@ int main(int argc, char **argv)
 	checkedWrite(socket_desc, nickname, strlen(nickname));
 
 	//read json 
-
 	checkedRead(socket_desc, json_buffer, sizeof(json_buffer));
 
 	paresd_json = json_tokener_parse(json_buffer);
@@ -99,6 +101,11 @@ int main(int argc, char **argv)
 
 	json_array_size = json_object_array_length(jarr);
 
+	idarray = (int *)malloc(json_array_size * sizeof(int));
+
+	printf("Server list:\n");
+	printf("Nr \tId \tServer Name\n");
+
 	if(json_array_size  == 0)
 		printf("none\n");
 	else
@@ -106,22 +113,50 @@ int main(int argc, char **argv)
 		for(i = 0; i < json_array_size; i++)
 	{
 		jarrhelp = json_object_array_get_idx(jarr, i);
+		*(idarray + i) = json_object_get_int(jarrhelp);
 		jarrstringhelp = json_object_array_get_idx(jarrstring, i);
-		printf("%d: %s\n", json_object_get_int(jarrhelp), json_object_get_string(jarrstringhelp));
+		printf("%d.\t%d\t%s\n", i + 1, json_object_get_int(jarrhelp), json_object_get_string(jarrstringhelp));
 	}
 	}
 	
+	printf("If you want to join select 1 if you want to create server select 2:\n");
+	scanf("%d", &choice);
 
-	printf("Enter server name: ");
-	scanf("%s", server_name);
+	//send choice
+	checkedWrite(socket_desc, &choice, sizeof(choice));
 
-	printf("Enter id: ");
-	scanf("%d", &id);
+	if(choice == 1)
+	{	
+		while(contain == 0)
+		{
+			printf("Enter server id or -1 to exit:\n");
+			scanf("%d", &id);
 
-	//checkedWrite(socket_desc, server_name, strlen(server_name));
-	checkedWrite(socket_desc, &id, sizeof(id));
+			if(id == -1)
+				goto koniec;
 
-	checkedWrite(socket_desc, server_name, strlen(server_name));
+			checkedWrite(socket_desc, &id, sizeof(id));
+			checkedRead(socket_desc, &contain, sizeof(contain));
+
+		}
+		
+	} else if(choice == 2)
+	{
+		while(contain == 0)
+		{
+			printf("Enter server id or -1 to exit:\n");
+			scanf("%d", &id);
+
+			if(id == -1)
+				goto koniec;
+
+			checkedWrite(socket_desc, &id, sizeof(id));
+			checkedRead(socket_desc, &contain, sizeof(contain));
+		}
+	} else 
+	{
+		goto koniec;
+	}
 
 	pthread_t send_msg_thread;
 	checkedPthread_create(&send_msg_thread, NULL, (void *)send_msg, NULL);
@@ -132,6 +167,7 @@ int main(int argc, char **argv)
 
 	pthread_join(send_msg_thread, NULL);
 
+	koniec:
 
 	if(flag == 1)
 	{

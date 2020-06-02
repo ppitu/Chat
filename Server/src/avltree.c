@@ -206,9 +206,11 @@ void AvlTreeIdToArray(struct NodeAvl *node, int arr[], int *i)
     if(node == NULL)
         return;
 
+    AvlTreeIdToArray(node->left, arr, i);
+
     *(arr + *i) = node->id;
     ++*i;
-    AvlTreeIdToArray(node->left, arr, i);
+    
     AvlTreeIdToArray(node->right, arr, i);
 
 }
@@ -375,4 +377,29 @@ void AvlTreeServerNameToArray(struct NodeAvl *node, char **arr, int *i)
     AvlTreeServerNameToArray(node->left, arr, i);
     AvlTreeServerNameToArray(node->right, arr, i);
 
+}
+
+int AvlTreeFindSmallestMissingIdValue(struct NodeAvl *node)
+{
+    int *arr;
+    int i = 0;
+    int tree_size = AvlTreeSize(node);
+    int missing_value;
+
+    if(tree_size == 0)
+        return 0;
+
+
+    arr= (int *)calloc(tree_size, sizeof(int));
+
+    AvlTreeIdToArray(node, arr, &i);
+
+    missing_value = ((tree_size + 1) * (tree_size + 2) /2);
+
+    for(i = 0; i < tree_size; i++)
+    {
+        missing_value =- *(arr + i);
+    }
+
+    return(missing_value);
 }

@@ -42,6 +42,7 @@ void AvlTreeDestructor(struct NodeAvl*);
 char *AvlTreeReturnNickName(struct NodeAvl *, int, int);
 char **AvlTreeReturnServerNameArray(struct NodeAvl *);
 void AvlTreeServerNameToArray(struct NodeAvl *, char **, int *);
+int AvlTreeFindSmallestMissingIdValue(struct NodeAvl*);
 
 
 #endif //AVLTREE_H_
