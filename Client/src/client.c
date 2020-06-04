@@ -72,6 +72,8 @@ int main(int argc, char **argv)
 	struct json_object *jarrhelp;
 	struct json_object *jarrstring;
 	struct json_object *jarrstringhelp;
+	struct json_object *jobj;
+	struct json_object *jserver_name;
 	
 
 
@@ -122,6 +124,8 @@ int main(int argc, char **argv)
 	printf("If you want to join select 1 if you want to create server select 2:\n");
 	scanf("%d", &choice);
 
+	jobj = json_object_new_object();
+
 	//send choice
 	checkedWrite(socket_desc, &choice, sizeof(choice));
 
@@ -144,13 +148,18 @@ int main(int argc, char **argv)
 	{
 		while(contain == 0)
 		{
-			printf("Enter server id or -1 to exit:\n");
-			scanf("%d", &id);
+			printf("Enter server name or -1 to exit:\n");
+			scanf("%s", server_name);
 
-			if(id == -1)
+			if(server_name == "-1")
 				goto koniec;
 
-			checkedWrite(socket_desc, &id, sizeof(id));
+			jserver_name = json_object_new_string(server_name);
+			json_object_object_add(jobj, "Server Name", jserver_name);
+
+			printf("The josn %s\n", json_object_to_json_string(jobj));
+
+			checkedWrite(socket_desc, json_object_to_json_string(jobj), strlen(json_object_to_json_string(jobj)));
 			checkedRead(socket_desc, &contain, sizeof(contain));
 		}
 	} else 

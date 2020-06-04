@@ -219,7 +219,8 @@ bool AvlTreeContainId(struct NodeAvl *node, int id)
 {
     if(node == NULL)
         return false;
-    else{
+    else
+    {
         if(id == node->id)
             return true;
         else if(id < node->id)
@@ -229,7 +230,22 @@ bool AvlTreeContainId(struct NodeAvl *node, int id)
     }
 }
 
-NodeAvlServer *AvlTreeFind(struct NodeAvl * node, int id)
+bool AvlTreeContainServerName(struct NodeAvl *node, char *server_name, int id)
+{
+    if(node == NULL)
+        return false;
+    else 
+    {
+        if(server_name == node->server_name)
+            return true;
+        else if(id < node->id)
+            AvlTreeContainServerName(node->left, server_name, id);
+        else if(id > node->id)
+            AvlTreeContainServerName(node->right, server_name, id);
+    }
+}
+
+NodeAvlServer *AvlTreeFind(struct NodeAvl *node, int id)
 {
     NodeAvlServer *current = node;
 
@@ -383,8 +399,9 @@ int AvlTreeFindSmallestMissingIdValue(struct NodeAvl *node)
 {
     int *arr;
     int i = 0;
+    int low, high, mid;
     int tree_size = AvlTreeSize(node);
-    int missing_value;
+    int avl_size;
 
     if(tree_size == 0)
         return 0;
@@ -393,13 +410,28 @@ int AvlTreeFindSmallestMissingIdValue(struct NodeAvl *node)
     arr= (int *)calloc(tree_size, sizeof(int));
 
     AvlTreeIdToArray(node, arr, &i);
+    avl_size = AvlTreeSize(node);
 
-    missing_value = ((tree_size + 1) * (tree_size + 2) /2);
+    low = 0;
+    high = avl_size - 1;
 
-    for(i = 0; i < tree_size; i++)
+    return(AvlTreeSmallestMissingId(arr, low, high));
+}
+
+int AvlTreeSmallestMissingId(int arr[], int low, int high)
+{
+    int mid;
+
+    if(low > high)
+        return low;
+
+    mid = low + (high - low) / 2;
+
+    if(*(arr + mid) == mid)
+        return AvlTreeSmallestMissingId(arr, mid + 1, high);
+    else
     {
-        missing_value =- *(arr + i);
+        return AvlTreeSmallestMissingId(arr, low, mid - 1);
     }
-
-    return(missing_value);
+    
 }

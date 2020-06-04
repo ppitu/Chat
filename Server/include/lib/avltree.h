@@ -33,6 +33,7 @@ int AvlTreeSize(struct NodeAvl*);
 int *AvlTreeReturnIdArray(struct NodeAvl *);
 void AvlTreeIdToArray(struct NodeAvl *, int[], int*);
 bool AvlTreeContainId(struct NodeAvl *, int);
+bool AvlTreeContainServerName(struct NodeAvl *, char *, int );
 NodeAvlServer *AvlTreeFind(struct NodeAvl *, int);
 void AvlTreeInsertUserToChat(struct NodeAvl *, char[], int, int);
 int AvlTreeClientListSize(struct NodeAvl *, int );
@@ -43,6 +44,7 @@ char *AvlTreeReturnNickName(struct NodeAvl *, int, int);
 char **AvlTreeReturnServerNameArray(struct NodeAvl *);
 void AvlTreeServerNameToArray(struct NodeAvl *, char **, int *);
 int AvlTreeFindSmallestMissingIdValue(struct NodeAvl*);
+int AvlTreeSmallestMissingId(int[], int, int);
 
 
 #endif //AVLTREE_H_

@@ -26,11 +26,11 @@ void SendChatRoomList(int connect_desc, NodeAvlServer *root_avl_tree)
     for(int i = 0; i < avl_tree_size; i++)
 	{
 		//creating a json integer
-		json_object *jint = json_object_new_int(*(id_arr + i));
+		struct json_object *jint = json_object_new_int(*(id_arr + i));
 
 		//creating a json string
 
-		json_object *jstring = json_object_new_string(*(server_name + i));
+		struct json_object *jstring = json_object_new_string(*(server_name + i));
 
 		//add json int to the array
 		json_object_array_add(jidarray, jint);

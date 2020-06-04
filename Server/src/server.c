@@ -1,7 +1,7 @@
 #include "lib.h"
 #include "avltree.h"
 
-#include    <json-c/json.h>
+#include   <json-c/json.h>
 
 int socket_desc;
 
@@ -47,6 +47,8 @@ void *doit(void * arg)
 
 	checkedPthread_detach(pthread_self());
 
+	value = AvlTreeFindSmallestMissingIdValue(root_avl_tree);
+	printf("Value %d\n", value);
 	//recive nickname
 	recv = checkedRead(connfd, nickname, sizeof(nickname));
 
@@ -60,45 +62,8 @@ void *doit(void * arg)
 
 	SendChatRoomList(connfd, root_avl_tree);
 
-	//receive choice
-	checkedRead(connfd, &choice, sizeof(choice));
+	id = CreateJoinServerUserChoice(&root_avl_tree, connfd,  socket_desc);
 
-	value = AvlTreeFindSmallestMissingIdValue(root_avl_tree);
-
-	printf("Value %d", value);
-
-	if(choice == 1)
-	{
-		while(pom == 0)
-		{
-			checkedRead(connfd, &id, sizeof(id));
-		
-			if(AvlTreeContainId(root_avl_tree, id))
-			{
-				pom++;
-			}
-			
-			checkedWrite(connfd, &pom, sizeof(pom));
-		}
-
-	}else {
-		while(pom == 0)
-		{
-			checkedRead(connfd, &id, sizeof(id));
-		
-			if(!AvlTreeContainId(root_avl_tree, id))
-			{
-				pom++;
-				printf("Create new chatroom id: %d and name: %s\n", id, name_server);
-				root_avl_tree = AvlTreeInsert(root_avl_tree, id, socket_desc, "lol");
-			}
-			
-			checkedWrite(connfd, &pom, sizeof(pom));
-		}
-	}
-	
-
-	//checkedRead(connfd, name_server, sizeof(name_server));
 
 	AvlTreeInsertUserToChat(root_avl_tree, nickname, connfd, id);
 

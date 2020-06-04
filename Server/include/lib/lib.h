@@ -25,7 +25,7 @@
 #include 	<pthread.h>
 #include 	<signal.h>
 #include    <stdbool.h>
-#include <json-c/json.h>
+#include    <json-c/json.h>
 
 //#include    "avltree.h"
 //#include    "client_list.h"
@@ -37,7 +37,7 @@
 /*********DEFINES************************/
 
 #define MAXLINE 1024
-#define NAMELENGTH 31
+#define NAMELENGTH 1024
 
 /********FUNCTIONS***********************/
 
