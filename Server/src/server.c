@@ -2,10 +2,18 @@
 #include "avltree.h"
 
 #include   <json-c/json.h>
+#include    <mysql/mysql.h>
 
 int socket_desc;
 
+MYSQL *con;
 
+char *server = "localhost";
+char *user = "root";
+char pass[128];
+char *database = "";
+
+char query[254] = {0};
 
 NodeAvlServer *root_avl_tree = NULL;
 
@@ -30,7 +38,7 @@ void *doit(void * arg)
 	int			*arr;
 	char 		len[10];
 	int 		id; //server id on the avl tree
-	char		nickname[NAMELENGTH];
+	char		nickname[NAMELENGTH] = "lol";
 	int			recv;
 	int 		*arrClient;
 	int 		size;
@@ -40,6 +48,7 @@ void *doit(void * arg)
 	int 		contain;
 	int 		pom = 0;
 	int			value = -1;
+	
 
 	connfd = *((int *)arg);
 
@@ -50,11 +59,14 @@ void *doit(void * arg)
 	value = AvlTreeFindSmallestMissingIdValue(root_avl_tree);
 	printf("Value %d\n", value);
 	//recive nickname
-	recv = checkedRead(connfd, nickname, sizeof(nickname));
+	//recv = checkedRead(connfd, nickname, sizeof(nickname));
 
 
-	nickname[recv] = '\0';
+	//nickname[recv] = '\0';
 
+	loggingRegisterUser(connfd, con);
+
+	checkedRead(connfd, recvLine, sizeof(recvLine));
 
 	if(avl_tree_size_doit > 0)
 		printf("%d\n", *(arr + 0));
@@ -103,7 +115,6 @@ void *doit(void * arg)
 	AvlTreeRemoveClient(root_avl_tree, connfd, id);
 
 	checkedClose(connfd);
-
 	return(NULL);
 }
 
@@ -125,7 +136,7 @@ void exitServer(void)
 		{
 
 			AvlTreeDestructor(root_avl_tree);
-
+			mysql_close(con);
 			printf("Bye\n");
 			exit(EXIT_SUCCESS);
 		}
@@ -158,6 +169,20 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	printf("MySQL client version: %s\n", mysql_get_client_info());
+
+	con = mysql_init(NULL);
+
+	printf("Database password: ");
+	scanf("%s", pass);
+
+	if(!mysql_real_connect(con, server, user, pass, database, 0, NULL, 0))
+	{
+		fprintf(stderr, "%s\n", mysql_error(con));
+	}
+
+	mysql_query(con, "use chat");
+
 	cliaddr = checkedMalloc(addrlen);
 
 
@@ -176,4 +201,6 @@ int main(int argc, char **argv)
 
 		checkedPthread_create(&thid, NULL, &doit, connect_desc);
 	}
+
+	
 }

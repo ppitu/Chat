@@ -44,7 +44,7 @@ int CreateJoinServerUserChoice(NodeAvlServer **root_avl_tree, int connfd, int so
 			{
 				pom++;
 				printf("Create new chatroom id: %d and name: %s\n", id, server_name);
-				*root_avl_tree = AvlTreeInsert(*root_avl_tree, id, socket_desc, server_name);
+				*root_avl_tree = AvlTreeInsert(*root_avl_tree, id, socket_desc, server_name, false);
 			}
 			
 			checkedWrite(connfd, &pom, sizeof(pom));

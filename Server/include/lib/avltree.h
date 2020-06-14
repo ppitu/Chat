@@ -10,22 +10,20 @@ typedef struct NodeAvl
     char server_name[NAMELENGTH];
     struct NodeAvl *left;
     struct NodeAvl *right;
-    //struct NodeAvl *up;
     int height;
-    //int client_desc;
+    bool private;
     ClientList *root_client_list;
-    //char server_name[128];
 
 } NodeAvlServer;
 
-NodeAvlServer *AvlTreeNewNode(int, int, char *);
+NodeAvlServer *AvlTreeNewNode(int, int, char *, bool);
 NodeAvlServer *singleRightRotate(struct NodeAvl *);
 NodeAvlServer *singleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleLeftRotate(struct NodeAvl *);
 //NodeAvlServer *doubleRightRotate(struct NodeAvl *);
 int height(struct NodeAvl *);
 int getBalance(struct NodeAvl *);
-NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, int, char *);
+NodeAvlServer *AvlTreeInsert(struct NodeAvl *, int, int, char *, bool);
 void AvlTreePreOrder(struct NodeAvl *);
 NodeAvlServer *AvlTreeDeleteNode(struct NodeAvl *, int);
 NodeAvlServer *AvlTreeMinValeNode(struct NodeAvl *);

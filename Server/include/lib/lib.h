@@ -26,6 +26,7 @@
 #include 	<signal.h>
 #include    <stdbool.h>
 #include    <json-c/json.h>
+#include    <mysql/mysql.h>
 
 //#include    "avltree.h"
 //#include    "client_list.h"

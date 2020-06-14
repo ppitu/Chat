@@ -5,4 +5,4 @@ SOURCE=$(wildcard src/*.c)
 
 
 server: $(SOURCE)
-	$(CC) -pthread  -o server $(SOURCE) $(SOURCE1) $(INCLUDE) -ljson-c
+	$(CC) -pthread  -o server $(SOURCE) $(SOURCE1) $(INCLUDE)  -ljson-c -lmysqlclient

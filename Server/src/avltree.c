@@ -1,6 +1,6 @@
 #include "avltree.h"
 
-NodeAvlServer *AvlTreeNewNode(int key, int socket_desc, char *server_name)
+NodeAvlServer *AvlTreeNewNode(int key, int socket_desc, char *server_name, bool priv)
 {
     //NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
     NodeAvlServer *node = (NodeAvlServer *)checkedMalloc(sizeof(struct NodeAvl));
@@ -11,8 +11,7 @@ NodeAvlServer *AvlTreeNewNode(int key, int socket_desc, char *server_name)
     node->right = NULL;
     node->height = 1;
     node->root_client_list = ClientListNewNode(socket_desc, "127.0.0.1");
-    //node->client_desc = desc;
-    //snprintf(node->server_name, 128, server_name);
+    node->private = priv;
     return(node);
 }
 
@@ -60,20 +59,20 @@ int height(struct NodeAvl *y)
     return(y->height);
 }
 
-NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int socket_desc, char *name)
+NodeAvlServer *AvlTreeInsert(struct NodeAvl* node, int key, int socket_desc, char *name, bool priv)
 {
     int balance;
 
     //1. Perform the normal BST insertion
     if(node == NULL)
     {
-        return(AvlTreeNewNode(key, socket_desc, name));
+        return(AvlTreeNewNode(key, socket_desc, name, priv));
     }
 
     if(key < node->id)
-        node->left = AvlTreeInsert(node->left, key, socket_desc, name);
+        node->left = AvlTreeInsert(node->left, key, socket_desc, name, priv);
     else if(key > node->id)
-        node->right = AvlTreeInsert(node->right, key, socket_desc, name);
+        node->right = AvlTreeInsert(node->right, key, socket_desc, name, priv);
     else //equal keys are not allowed
         return node;
 

@@ -1,6 +1,7 @@
 #include "lib.h"
 
 #include    <json-c/json.h>
+#include <mysql/mysql.h>
 
 int 			socket_desc = 0;
 volatile int 		flag = 0;
@@ -58,6 +59,7 @@ void send_msg()
 int main(int argc, char **argv)
 {
 	char 	server_name[128];
+	char 	password[NAMELENGTH];
 	int 	*arr;
 	int		*idarray;
 	int		len, i, d, q;
@@ -66,6 +68,9 @@ int main(int argc, char **argv)
 	int 	n;
 	char 	json_buffer[1024];
 	int		choice;
+	int 	choicelog;
+	int confirm;
+	int recv_int;
 	size_t 	json_array_size;
 	struct json_object *paresd_json;
 	struct json_object *jarr;
@@ -73,7 +78,12 @@ int main(int argc, char **argv)
 	struct json_object *jarrstring;
 	struct json_object *jarrstringhelp;
 	struct json_object *jobj;
+	struct json_object *jobjlog;
 	struct json_object *jserver_name;
+	struct json_object *jnickname;
+	struct json_object *jpassword;
+	struct json_object *jlogarray;
+	struct json_object *jint;
 	
 
 
@@ -83,16 +93,92 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Enter your nickname: ");
-	scanf("%s", nickname);
-
 	socket_desc = tcp_connect(argv[1], argv[2]);
 	//socket_desc = tcp_connect("77.55.213.189", "2020");
 
+	sprawdzenie:
+
+	printf("[1] Sign in or [2] registration or [3] as a guest:");
+	scanf("%d", &choicelog);
+
+	jobjlog = json_object_new_object();
+	jlogarray = json_object_new_array();
+
+	if(choicelog == 1)
+	{
+		printf("Enter nickname: ");
+		scanf("%s", nickname);
+		printf("Enter password: ");
+		scanf("%s", password);
+
+		jnickname = json_object_new_string(nickname);
+		jpassword = json_object_new_string(password);
+
+		json_object_array_add(jlogarray, jnickname);
+		json_object_array_add(jlogarray, jpassword);
+
+		json_object_object_add(jobjlog, "Logging", jlogarray);
+
+		printf("The josn log %s\n", json_object_to_json_string(jobjlog));
+	} else if(choicelog == 2)
+	{
+		printf("Enter nickname: ");
+		scanf("%s", nickname);
+		printf("Enter password: ");
+		scanf("%s", password);
+
+		jnickname = json_object_new_string(nickname);
+		jpassword = json_object_new_string(password);
+
+		json_object_array_add(jlogarray, jnickname);
+		json_object_array_add(jlogarray, jpassword);
+
+		json_object_object_add(jobjlog, "Register", jlogarray);
+
+		printf("The josn reg %s\n", json_object_to_json_string(jobjlog));
+
+
+	}else if(choicelog == 3)
+	{
+		printf("Enter your nickname: ");
+		scanf("%s", nickname);
+
+		jnickname = json_object_new_string(nickname);
+
+		json_object_array_add(jlogarray, jnickname);
+
+		json_object_object_add(jobjlog, "Guest", jlogarray);
+
+		printf("The josn log %s\n", json_object_to_json_string(jobjlog));
+	} else {
+
+	}
+
+	
+	
+	//send login json
+	checkedWrite(socket_desc, json_object_to_json_string(jobjlog), strlen(json_object_to_json_string(jobjlog)));
+	puts("lolol");
+	checkedRead(socket_desc, json_buffer, sizeof(json_buffer));
+	puts("lolol");
+	//confirm = ntohl(recv_int);
+	paresd_json = json_tokener_parse(json_buffer);
+	json_object_object_get_ex(paresd_json, "Confirm", &jint);
+	confirm = json_object_get_int(jint);
+
+	printf("%ld\n", sizeof(confirm));
+	printf("%d\n", confirm);
+
+	if(confirm == 1)
+		goto sprawdzenie;
+
+	checkedWrite(socket_desc, "Lol\n", sizeof("Lol\n"));
+
 	//send nickname
-	checkedWrite(socket_desc, nickname, strlen(nickname));
+	//checkedWrite(socket_desc, nickname, strlen(nickname));
 
 	//read json 
+	puts("looooasdlo");
 	checkedRead(socket_desc, json_buffer, sizeof(json_buffer));
 
 	paresd_json = json_tokener_parse(json_buffer);
